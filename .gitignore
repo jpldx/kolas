@@ -1,1 +1,4 @@
 .idea
+.yarn
+.yarnrc
+kolas-ui/node_modules
