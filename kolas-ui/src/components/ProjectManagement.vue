@@ -151,7 +151,7 @@ export default {
 
 <style scoped>
 .project-management {
-  padding: 10px;
+  padding: 20px;
 }
 
 .project-card {

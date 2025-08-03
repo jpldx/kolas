@@ -49,5 +49,10 @@ export default {
   background-color: #ffffff;
   border-bottom: 1px solid #e8e8e8;
   text-align: left;
+  position: fixed;
+  top: 0;
+  left: 240px;
+  right: 0;
+  z-index: 100;
 }
 </style>

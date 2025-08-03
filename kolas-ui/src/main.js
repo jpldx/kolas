@@ -6,13 +6,19 @@
 import { createApp } from 'vue'
 import ViewUIPlus from 'view-ui-plus'
 import App from './App.vue'
-//import router from './router'
+import router from './router'
 //import store from './store'
 import 'view-ui-plus/dist/styles/viewuiplus.css'
+import { Message } from 'view-ui-plus'
 
 const app = createApp(App)
 
+// 注册全局组件和指令
+app.use(ViewUIPlus)
 //app.use(store)
-//  .use(router)
-  app.use(ViewUIPlus)
-  .mount('#app')
+  .use(router)
+
+// 全局配置
+app.config.globalProperties.$Message = Message
+
+app.mount('#app')
