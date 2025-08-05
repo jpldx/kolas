@@ -2,20 +2,23 @@
   <div class="deploy-to-host">
     <h2>Deploy to Host</h2>
     <div class="path-selector-container">
-      <Input type="text" v-model="selectedPath" placeholder="选择目录路径" readonly />
-      <Button @click="selectDirectory" type="primary" style="margin-left: 10px;">浏览...</Button>
+      <Input type="text" v-model="selectedPath" placeholder="选择文件路径" readonly />
+      <!-- <Button @click="selectDirectory" type="primary" style="margin-left: 10px;">浏览...</Button> -->
+        <Upload action="//jsonplaceholder.typicode.com/posts/" :on-success="handleUploadSuccess">
+        <Button icon="ios-cloud-upload-outline" @click="selectDirectory" type="primary" style="margin-left: 10px;">选择</Button>
+    </Upload>
     </div>
   </div>
 </template>
 
 <script>
-import { Input, Button,  } from 'view-ui-plus'
+import { Input, Upload } from 'view-ui-plus'
 
 export default {
   name: 'DeployToHost',
   components: {
     Input,
-    Button
+    Upload
   },
   data() {
     return {
@@ -23,6 +26,30 @@ export default {
     }
   },
   methods: {
+    handleUploadSuccess(response, file) {
+      // 获取文件全路径
+      let fullFilePath = '';
+      
+      // 检测是否在Electron环境中
+      if (window.require) {
+        const path = window.require('path');
+        // 结合选择的目录路径和文件名
+        if (this.selectedPath && file.name) {
+          fullFilePath = path.join(this.selectedPath, file.name);
+          this.$Message.success('文件全路径: ' + fullFilePath);
+        } else {
+          this.$Message.warning('请先选择目录');
+        }
+      } else {
+        // 浏览器环境下无法获取完整路径
+        fullFilePath = '浏览器环境下无法获取完整路径，文件名: ' + file.name;
+        this.$Message.info(fullFilePath);
+      }
+      
+      console.log('上传响应:', response);
+      console.log('上传文件:', file);
+      console.log('文件全路径:', fullFilePath);
+    },
     selectDirectory() {
       // 这里使用Electron的dialog模块来选择目录
       // 注意：在浏览器环境中无法直接访问文件系统
