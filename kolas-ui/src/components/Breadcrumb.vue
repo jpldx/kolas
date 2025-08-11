@@ -30,7 +30,6 @@ export default {
     return {
       menuNames: {
         'projectManagement': '项目管理',
-        'deployToHost': 'Deploy to Host',
         'settings': '系统设置'
       }
     }

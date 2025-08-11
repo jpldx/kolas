@@ -5,13 +5,27 @@
       <aside class="sidebar">
         <div class="sidebar-header">
           <img src="./assets/logo.png" alt="Kolas Logo" class="logo">
-          <h1 class="project-name">kolas</h1>
+          <h1 class="project-name">Kolas</h1>
         </div>
-        <Menu mode="vertical" theme="light" width="240px" :active-name="activeMenu" @on-select="handleMenuSelect">
-          <MenuItem name="home" icon="ios-home">首页</MenuItem>
-          <MenuItem name="projectManagement" icon="ios-bar-chart">项目管理</MenuItem>
-          <MenuItem name="deployToHost" icon="ios-cloud-upload">Deploy to Host</MenuItem>
-          <MenuItem name="settings" icon="ios-cog">系统设置</MenuItem>
+        <Menu mode="vertical" theme="light" width="240px" :active-name="activeMenu" @on-select="handleMenuSelect" :open-names="['operation2']">
+          <template v-if="$route.path.includes('/project-detail/')">
+            <MenuItem name="backToHome" icon="ios-arrow-back">返回主页面</MenuItem>
+            <MenuItem name="operation1" icon="ios-list">项目操作1</MenuItem>
+            <Submenu name="operation2">
+              <template #title>
+                Deploy
+              </template>
+              <MenuItem name="deployToA">Deploy by JAR</MenuItem>
+              <MenuItem name="deployToB">Deploy to B</MenuItem>
+              <MenuItem name="deployToC">Deploy to C</MenuItem>
+            </Submenu>
+            <MenuItem name="host" icon="ios-list">Host</MenuItem>
+          </template>
+          <template v-else>
+            <MenuItem name="home" icon="ios-home">首页</MenuItem>
+            <MenuItem name="projectManagement" icon="ios-bar-chart">项目管理</MenuItem>
+            <MenuItem name="settings" icon="ios-cog">系统设置</MenuItem>
+          </template>
         </Menu>
       </aside>
 
@@ -28,7 +42,7 @@
 
 <script>
 import AppBreadcrumb from './components/Breadcrumb.vue'
-import { Menu, MenuItem } from 'view-ui-plus'
+import { Menu, MenuItem, Submenu } from 'view-ui-plus'
 import { onMounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
@@ -37,7 +51,8 @@ export default {
   components: {
     AppBreadcrumb,
     Menu,
-    MenuItem
+    MenuItem,
+    Submenu
   },
   setup() {
     const router = useRouter()
@@ -48,36 +63,52 @@ export default {
     const handleMenuSelect = (name) => {
       activeMenu.value = name
       switch(name) {
-        case 'home':
-          router.push('/')
-          break
-        case 'projectManagement':
-          router.push('/project-management')
-          break
-        case 'deployToHost':
-          router.push('/deploy-to-host')
-          break
-        case 'settings':
-          router.push('/settings')
-          break
-      }
+          case 'home':
+            router.push('/')
+            break
+          case 'projectManagement':
+            router.push('/project-management')
+            break
+          case 'settings':
+            router.push('/settings')
+            break
+          case 'backToHome':
+            router.push('/')
+            break
+          case 'deployToA':
+            router.push('/deploy-by-jar');
+            break;
+          case 'deployToB':
+            router.push('/deploy-to-b');
+            break;
+          case 'deployToC':
+            router.push('/deploy-to-c');
+            break;
+          case 'host': {
+            // 获取当前项目ID并跳转到host页面
+            // const projectId = route.params.id;
+            router.push({ path: '/servers' });
+            break;
+          }
+        }
     }
 
     // 监听路由变化，更新活动菜单
     watch(route, (newRoute) => {
-      switch(newRoute.path) {
-        case '/':
-          activeMenu.value = 'home'
-          break
-        case '/project-management':
-          activeMenu.value = 'projectManagement'
-          break
-        case '/deploy-to-host':
-          activeMenu.value = 'deployToHost'
-          break
-        case '/settings':
-          activeMenu.value = 'settings'
-          break
+      if (newRoute.path.includes('/project-detail/')) {
+        activeMenu.value = 'operation1';
+      } else {
+        switch(newRoute.path) {
+          case '/':
+            activeMenu.value = 'home'
+            break
+          case '/project-management':
+            activeMenu.value = 'projectManagement'
+            break
+          case '/settings':
+            activeMenu.value = 'settings'
+            break
+        }
       }
     })
 
@@ -89,9 +120,6 @@ export default {
           break
         case '/project-management':
           activeMenu.value = 'projectManagement'
-          break
-        case '/deploy-to-host':
-          activeMenu.value = 'deployToHost'
           break
         case '/settings':
           activeMenu.value = 'settings'

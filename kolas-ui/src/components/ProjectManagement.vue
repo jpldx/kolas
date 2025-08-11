@@ -6,7 +6,7 @@
     </div>
     <Row :gutter="16">
       <Col span="6" v-for="(project, index) in projects" :key="index">
-        <Card :bordered="true" class="project-card">
+        <Card :bordered="true" class="project-card" @click="handleProjectClick(index)">
           <img :src="project.image" alt="Project Image" class="project-image">
           <div class="project-info">
             <h3>{{ project.name }}</h3>
@@ -96,6 +96,9 @@ export default {
       // 实际应用中可能需要调用文件上传API
       const randomNum = Math.floor(Math.random() * 1000);
       this.newProject.image = `https://picsum.photos/300/200?random=${randomNum}`;
+    },
+    handleProjectClick(index) {
+      this.$router.push({ name: 'ProjectDetail', params: { id: index } });
     }
   },
   data() {
