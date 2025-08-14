@@ -45,7 +45,7 @@ export default {
         minWidth: 120
       },
       {
-        title: '目标 Host',
+        title: '目标主机',
         key: 'host',
         minWidth: 150
       },

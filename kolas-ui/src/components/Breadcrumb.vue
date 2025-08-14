@@ -29,7 +29,7 @@ export default {
   data() {
     return {
       menuNames: {
-        'projectManagement': '项目管理',
+        'project': '项目管理',
         'settings': '系统设置'
       }
     }

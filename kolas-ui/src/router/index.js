@@ -2,12 +2,13 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 // 导入组件
 import HelloWorld from '../components/HelloWorld.vue'
-import ProjectManagement from '../components/ProjectManagement.vue'
+import ProjectList from '../components/ProjectList.vue'
 import SettingsPage from '../components/SettingsPage.vue'
 import ProjectDetail from '../components/ProjectDetail.vue'
 import DeployByJar from '../components/DeployByJar.vue'
 import TaskDetail from '../components/TaskDetail.vue'
-import ServerList from '../components/ServerList.vue'
+import HostList from '../components/HostList.vue'
+import HostDetail from '../components/HostDetail.vue'
 
 // 定义路由规则
 const routes = [
@@ -17,9 +18,9 @@ const routes = [
     component: HelloWorld
   },
   {
-    path: '/project-management',
-    name: 'ProjectManagement',
-    component: ProjectManagement
+    path: '/project',
+    name: 'ProjectList',
+    component: ProjectList
   },
   {
     path: '/settings',
@@ -34,7 +35,8 @@ const routes = [
   { path: '/project-detail/:id/host', name: 'ProjectDetailHost', component: ProjectDetail },
   { path: '/project-detail/:id', name: 'ProjectDetail', component: ProjectDetail },
   { path: '/task-detail/:name', name: 'TaskDetail', component: TaskDetail },
-  { path: '/servers', name: 'ServerList', component: ServerList }
+  { path: '/host', name: 'HostList', component: HostList },
+  { path: '/host-detail/:id', name: 'HostDetail', component: HostDetail }
 ]
 
 // 创建路由实例

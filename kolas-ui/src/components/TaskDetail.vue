@@ -15,9 +15,30 @@
             </Upload>
           </FormItem>
           <FormItem label="目标主机" prop="host">
+            <!-- <Select v-model="task.host" placeholder="请选择目标主机">
+              <Option v-for="item in hostOptions" :value="item.value" :key="item.value" >{{ item.label }}
+                <Tag color="success" style="float:right" v-if="item.status === 'online'">在线</Tag>
+                <Tag color="error" style="float:right" v-else>下线</Tag>
+              </Option>
+            </Select> -->
             <Select v-model="task.host" placeholder="请选择目标主机">
-              <Option v-for="item in hostOptions" :value="item.value" :key="item.value">{{ item.label }}</Option>
-            </Select>
+              <Option 
+                v-for="item in hostOptions" 
+                :value="item.value" 
+                :key="item.value"
+                :label="item.label"
+              >
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span>{{ item.label }}</span>
+                  <Tag 
+                    :color="item.status === 'online' ? 'success' : 'error'"
+                    style="pointer-events: none;" 
+                  >
+                    {{ item.status === 'online' ? '在线' : '下线' }}
+                  </Tag>
+                </div>
+              </Option>
+          </Select>
           </FormItem>
           <FormItem label="目标路径" prop="targetPath">
             <Input v-model="task.targetPath" placeholder="请输入目标路径"></Input>
@@ -87,12 +108,14 @@
 <script>
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { Input, Upload, Button, Icon, Message as ElMessage, Form, FormItem, Divider } from 'view-ui-plus'
+import { Input, Upload, Button, Icon, Message as ElMessage, Form, FormItem, Divider, Tag } from 'view-ui-plus'
+import { list } from '@/api/host'
+import { onMounted } from 'vue'
 
 export default {
   name: 'TaskDetail',
   components: {
-    Input, Upload, Button, Icon, Form, FormItem, Divider
+    Input, Upload, Button, Icon, Form, FormItem, Divider, Tag
   },
   setup() {
     const route = useRoute()
@@ -106,11 +129,27 @@ export default {
       duration: '',
       logs: []
     })
-    const hostOptions = ref([
-      { value: '192.168.1.100', label: '192.168.1.100 (服务器A)' },
-      { value: '192.168.1.101', label: '192.168.1.101 (服务器B)' },
-      { value: '192.168.1.102', label: '192.168.1.102 (服务器C)' }
-    ])
+    const hostOptions = ref([])
+    onMounted(async () => {
+      try {
+        // TODO 从路由参数获取project_id
+        // const projectId = route.params.projectId;
+        const projectId = 1
+        if (!projectId) {
+          ElMessage.warning('缺少项目ID，无法获取主机列表');
+          return;
+        }
+        const response = await list(projectId);
+        hostOptions.value = response.data.map(item => ({
+          value: item.ip,
+          label: `${item.ip} (${item.name})`,
+          status: item.status
+        }));
+      } catch (error) {
+        ElMessage.error('获取主机列表失败');
+        console.error('获取主机列表错误:', error);
+      }
+    })
     const executionHistory = ref([
       { name: task.value.name, time: '2023-11-15 10:02:30', status: '成功', duration: '2分30秒' },
       { name: task.value.name, time: '2023-11-14 16:45:12', status: '失败', duration: '1分15秒' },

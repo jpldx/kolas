@@ -19,11 +19,11 @@
               <MenuItem name="deployToB">Deploy to B</MenuItem>
               <MenuItem name="deployToC">Deploy to C</MenuItem>
             </Submenu>
-            <MenuItem name="host" icon="ios-list">Host</MenuItem>
+            <MenuItem name="host" icon="ios-list">主机管理</MenuItem>
           </template>
           <template v-else>
             <MenuItem name="home" icon="ios-home">首页</MenuItem>
-            <MenuItem name="projectManagement" icon="ios-bar-chart">项目管理</MenuItem>
+            <MenuItem name="project" icon="ios-bar-chart">项目管理</MenuItem>
             <MenuItem name="settings" icon="ios-cog">系统设置</MenuItem>
           </template>
         </Menu>
@@ -66,8 +66,8 @@ export default {
           case 'home':
             router.push('/')
             break
-          case 'projectManagement':
-            router.push('/project-management')
+          case 'project':
+            router.push('/project')
             break
           case 'settings':
             router.push('/settings')
@@ -87,7 +87,7 @@ export default {
           case 'host': {
             // 获取当前项目ID并跳转到host页面
             // const projectId = route.params.id;
-            router.push({ path: '/servers' });
+            router.push({ path: '/host' });
             break;
           }
         }
@@ -102,8 +102,8 @@ export default {
           case '/':
             activeMenu.value = 'home'
             break
-          case '/project-management':
-            activeMenu.value = 'projectManagement'
+          case '/project':
+            activeMenu.value = 'project'
             break
           case '/settings':
             activeMenu.value = 'settings'
@@ -118,8 +118,8 @@ export default {
         case '/':
           activeMenu.value = 'home'
           break
-        case '/project-management':
-          activeMenu.value = 'projectManagement'
+        case '/project':
+          activeMenu.value = 'project'
           break
         case '/settings':
           activeMenu.value = 'settings'

@@ -32,15 +32,19 @@ class Base(DeclarativeBase):
 
 class Host(Base):
     """
-    Host管理
+    主机管理
     """
     __tablename__ = "k_host"
 
     id: Mapped[PrimaryKey]
     project_id: Mapped[int] = mapped_column(Integer)
-    ip: Mapped[int] = mapped_column(Integer)
-    port: Mapped[int] = mapped_column(Integer)
     name: Mapped[str] = mapped_column(String(50))
+    ip: Mapped[str] = mapped_column(String(50))
+    port: Mapped[int] = mapped_column(Integer)
+    username: Mapped[str] = mapped_column(String(50))
+    password: Mapped[str] = mapped_column(String(50))
+    # 状态（online/在用 offline/下线）
+    status: Mapped[str] = mapped_column(String(50), default="online")
     description: Mapped[Optional[str]] = mapped_column(Text)
     create_time: Mapped[datetime] = mapped_column(default=datetime.now)
 
