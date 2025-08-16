@@ -24,19 +24,35 @@ const routes = [
   },
   {
     path: '/settings',
-  name: 'Settings',
-  component: SettingsPage
-},
-{
-  path: '/deploy-by-jar',
-  name: 'DeployByJar',
-  component: DeployByJar
-},
-  { path: '/project-detail/:id/host', name: 'ProjectDetailHost', component: ProjectDetail },
-  { path: '/project-detail/:id', name: 'ProjectDetail', component: ProjectDetail },
-  { path: '/task-detail/:name', name: 'TaskDetail', component: TaskDetail },
-  { path: '/host', name: 'HostList', component: HostList },
-  { path: '/host-detail/:id', name: 'HostDetail', component: HostDetail }
+    name: 'Settings',
+    component: SettingsPage
+  },
+  {
+    path: '/deploy-by-jar',
+    name: 'DeployByJar',
+    component: DeployByJar
+  },
+  { 
+    path: '/project-detail/:id', 
+    name: 'ProjectDetail', 
+    component: ProjectDetail,
+    children: [
+        { 
+          path: 'host', 
+          name: 'HostList', 
+          component: HostList 
+        }
+    ]
+  },
+  { 
+    path: '/task-detail/:name', 
+    name: 'TaskDetail', 
+    component: TaskDetail 
+  },
+  { 
+    path: '/host-detail/:id', 
+    name: 'HostDetail', 
+    component: HostDetail }
 ]
 
 // 创建路由实例

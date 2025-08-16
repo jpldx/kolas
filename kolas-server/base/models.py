@@ -23,7 +23,7 @@ class ResponseModel(BaseModel, Generic[T]):
         return cls(code=ERROR, msg=msg)
 
 # 格式化的BaseModel
-class FormatBaseModel(BaseModel):
+class BaseFormatModel(BaseModel):
     class Config:
         json_encoders = {
             datetime: lambda v: v.strftime('%Y-%m-%d %H:%M:%S')

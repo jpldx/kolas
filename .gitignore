@@ -3,3 +3,7 @@
 .yarnrc
 kolas-ui/node_modules
 kolas-ui/.trae
+
+**/__pycache__
+
+files

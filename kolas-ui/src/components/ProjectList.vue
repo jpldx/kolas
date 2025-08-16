@@ -7,19 +7,19 @@
     </div>
     <Row :gutter="16">
       <!-- 调整后的卡片布局 -->
-      <Col span="6" v-for="(project, index) in projects" :key="index">
-        <div class="spd-card" @click="handleProjectClick(index)">
+      <Col span="6" v-for="(project, index) in projects" :key="project.id || index">
+        <div class="spd-card" @click="handleProjectClick(project.id)">
           <!-- 顶部状态条 -->
           <div class="spd-card-header">
             <span class="spd-card-title">
-              <img :src="project.image" alt="Project Logo" class="project-logo">
+              <img :src="previewImageUrl(project.icon_name)" alt="Project Logo" class="project-logo">
               {{ project.name }}
             </span>
             <!-- <span class="spd-card-status" :class="project.status">
               
             </span> -->
-            <Tag color="success">
-              {{ project.statusText }}
+            <Tag :color="project.status === 1 ? 'success' : '#BDBDBD'">
+              {{ project.status === 1 ? '使用中' : '已下线' }}
             </Tag>
           </div>
           
@@ -32,8 +32,8 @@
           <!-- 描述与辅助信息 -->
           <div class="spd-card-body">
             <div class="spd-card-meta">
-              <span class="spd-tag">SPD</span>
-              <span class="spd-time">2024-09-09 11:49:11</span>
+              <span class="spd-tag">admin</span>
+              <span class="spd-time">{{ project.create_time }}</span>
             </div>
           </div>
         </div>
@@ -51,23 +51,43 @@
     @on-cancel="handleCancelAdd"
   >
     <Form ref="projectForm" :model="newProject" :rules="formRules">
-      <FormItem label="项目图标">
-        <div class="project-icon-preview">
-          <img :src="newProject.image" alt="项目图标预览" class="preview-image">
-          <Button type="primary" size="small" @click="handleChangeImage">更换图标</Button>
-        </div>
+      <FormItem label="图标">
+        <Upload
+            :before-upload="handleBeforeUpload"
+            :show-upload-list="false"
+            action=""
+          >
+            <div class="project-icon-preview">
+              <template v-if="imageUploaded">
+                <img :src="newProject.image" alt="项目图标预览" class="preview-image">
+              </template>
+              <template v-else>
+                <div class="upload-icon-container">
+                  <Icon type="ios-cloud-upload" size="48" class="upload-icon" />
+                  <span class="upload-text">点击上传图标</span>
+                </div>
+              </template>
+            </div>
+        </Upload>
       </FormItem>
-      <FormItem label="项目名称" prop="name">
-        <Input v-model="newProject.name" placeholder="请输入项目名称" />
+      <FormItem label="名称" prop="name">
+        <Input v-model="newProject.name" placeholder="请输入名称" />
+      </FormItem>
+       <FormItem label="描述" prop="description">
+        <Input v-model="newProject.description" placeholder="请输入描述" />
       </FormItem>
     </Form>
   </Modal>
 </template>
 
 <script>
+/* eslint-disable */
 // JavaScript 部分保持不变
 import axios from 'axios';
-import { Row, Col, Button, Modal, Form, Input, Message, Tag} from 'view-ui-plus'
+import { Row, Col, Button, Modal, Form, Input, Message, Tag, Upload, Icon } from 'view-ui-plus'
+import { list as getProjectList, save as saveProject } from '@/api/project'
+import { uploadIcon } from '@/api/file'
+import service from '@/utils/axios'
 export default {
   name: 'ProjectList',
   components: {
@@ -78,7 +98,8 @@ export default {
     Button,
     Modal,
     Form,
-    Input
+    Input,
+    Upload
   },
   methods: {
     handleAddProject() {
@@ -87,18 +108,15 @@ export default {
     handleSaveProject() {
       this.$refs.projectForm.validate(valid => {
         if (valid) {
-          axios.post('/api/projects', this.newProject)
+          saveProject(this.newProject)
             .then(response => {
               Message.success('项目保存成功');
-              this.projects.push({
-                ...response.data,
-                description: '这是新项目的描述',
-                status: 'success',
-                statusText: '进行中'
-              });
+              this.fetchProjects(); // 保存成功后重新获取项目列表
               this.showAddProjectModal = false;
               this.newProject = {
                 name: '',
+                description: '',
+                icon_name: '',
                 image: 'https://picsum.photos/300/200?random=100'
               };
               this.$refs.projectForm.resetFields();
@@ -111,46 +129,87 @@ export default {
     },
     handleCancelAdd() {
       this.showAddProjectModal = false;
+      this.imageUploaded = false
       this.$refs.projectForm.resetFields();
     },
     handleChangeImage() {
       const randomNum = Math.floor(Math.random() * 1000);
       this.newProject.image = `https://picsum.photos/300/200?random=${randomNum}`;
     },
-    handleProjectClick(index) {
-      this.$router.push({ name: 'ProjectDetail', params: { id: index } });
+    handleProjectClick(id) {
+      this.$router.push({ name: 'ProjectDetail', params: { id } });
+    },
+    // handleBeforeUpload(file) {
+    //   const reader = new FileReader();
+    //   reader.onload = (e) => {
+    //     this.newProject.image = e.target.result;
+    //   };
+    //   reader.readAsDataURL(file);
+    //   return false; // 阻止默认上传行为
+    // },
+    handleBeforeUpload(file) {
+      // 调用文件上传接口
+      uploadIcon(file)
+        .then(res => {
+          Message.success('图片上传成功');
+          // 将图片转换为base64直接渲染
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.newProject.image = e.target.result;
+            this.imageUploaded = true;
+          };
+          reader.readAsDataURL(file);
+          // this.newProject.image = res.data.url; // 假设服务器返回图片URL
+          this.newProject.icon_name = res.data.filename;
+        })
+        .catch(error => {
+          Message.error('图片上传失败: ' + (error.response?.data?.msg || error.msg));
+        });
+      return false; // 阻止默认上传行为
+    },
+    handleUploadSuccess(response, file) {
+      // 此函数可能不再需要，但保留以防止错误
+    },
+    previewImageUrl(iconName) {
+      if (!iconName) {
+        return 'https://picsum.photos/300/200?random=100';
+      }
+      // 直接返回接口地址，让img标签的src属性直接请求该地址
+      return `${service.defaults.baseURL}/file/image/preview/${iconName}`;
+    },
+    fetchProjects() {
+      getProjectList()
+        .then(response => {
+          this.projects = response.data || [];
+        })
+        .catch(error => {
+          Message.error('获取项目列表失败: ' + (error.response?.data?.message || error.message));
+        });
     }
+  },
+  mounted() {
+    this.fetchProjects();
   },
   data() {
     return {
-      projects: [
-        {
-          name: '项目 1',
-          description: '这是项目 1 的描述',
-          image: 'https://picsum.photos/300/200?random=1',
-          status: 'success',
-          statusText: '进行中'
-        },
-        // 其他项目数据保持不变...
-        {
-          name: '项目 16',
-          description: '这是项目 16 的描述',
-          image: 'https://picsum.photos/300/200?random=16',
-          status: 'error',
-          statusText: '已暂停'
-        }
-      ],
+      projects: [],
       showAddProjectModal: false,
+      imageUploaded: false,
       newProject: {
         name: '',
+        description: '',
         image: 'https://picsum.photos/300/200?random=100',
+        icon_name: ''
       },
       formRules: {
         name: [
-          { required: true, message: '请输入项目名称', trigger: 'blur' }
+          { required: true, message: '请输入名称', trigger: 'blur' }
+        ],
+        description: [
+          { required: true, message: '请输入描述', trigger: 'blur' }
         ]
       }
-    }
+    };
   }
 }
 </script>
@@ -163,6 +222,7 @@ export default {
   overflow: hidden;
   transition: all 0.3s ease;
   background-color: #fff;
+  margin-bottom: 10px;
 }
 
 .spd-card:hover {
@@ -277,6 +337,36 @@ export default {
   display: flex;
   align-items: center;
   gap: 16px;
+  min-height: 100px;
+}
+
+.upload-icon-container {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #e8e8e8;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-icon-container:hover {
+  border-color: #1890ff;
+  background-color: #e6f7ff;
+}
+
+.upload-icon {
+  color: #3399ff;
+  margin-bottom: 8px;
+}
+
+.upload-text {
+  font-size: 12px;
+  color: #999;
 }
 
 .preview-image {
@@ -284,6 +374,14 @@ export default {
   height: 100px;
   object-fit: cover;
   border-radius: 4px;
+  border: 2px solid #e8e8e8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.preview-image:hover {
+  border-color: #1890ff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 .project {

@@ -54,7 +54,7 @@ export default {
         key: 'status',
         minWidth: 140,
         render: (h, params) => {
-          const color = params.row.status === '成功' ? 'green' : 'red'
+          const color = params.row.status === '成功' ? 'success' : 'error'
           return h(Tag, { color }, params.row.status)
         }
       },

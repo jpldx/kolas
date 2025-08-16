@@ -1,11 +1,11 @@
 <template>
   <div class="project-detail-container">
     <div class="main-content">
-      <h2 v-if="!isHostPage">{{ project.name }} 详情</h2>
+      <!-- <h2 v-if="!isHostPage">{{ project.name }} 详情</h2> -->
       <!-- <h2 v-else>主机列表</h2> -->
 
       <!-- 项目详情内容 -->
-      <div v-if="!isHostPage" class="project-info-card">
+      <div class="project-info-card">
         <img :src="project.image" alt="Project Image" class="detail-image">
         <div class="info-content">
           <p><strong>项目名称:</strong> {{ project.name }}</p>

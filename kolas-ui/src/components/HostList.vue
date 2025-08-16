@@ -2,14 +2,14 @@
   <div class="server-list-container">
     <div class="table-actions">
       <div style="margin-top: 10px;">
-        <Input v-model="searchKeyword" placeholder="请输入主机名称/IP" style="width: 300px; margin-right: 10px;"></Input>
-        <Button type="default" @click="handleSearch" style="margin-right: 10px;" icon="ios-search"></Button>
-        <Button @click="handleReset" style="margin-right: 10px;" icon="md-refresh"></Button>
+        <Input v-model="searchKeyword" placeholder="请输入主机名称/IP" style="width: 300px;"></Input>
+        <Button type="default" @click="handleSearch" icon="ios-search"></Button>
+        <Button @click="handleReset" icon="md-refresh"></Button>
         <!-- <span class="server-title">主机列表</span> -->
         <Button type="primary" @click="showAddModal" icon="md-add"></Button>
       </div>
     </div>
-    <Table :data="filteredResults" :columns="columns" border :scroll-x="true"></Table>
+    <Table :data="filteredResults" :columns="columns" :scroll-x="true"></Table>
 
     <!-- 添加/编辑主机模态框 -->
     <Modal v-model="modalVisible" :title="modalType === 'add' ? '新增主机' : '编辑主机'">
